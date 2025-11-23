@@ -34,7 +34,7 @@ export const API_ROUTES = {
     SOLUTIONS: {
         BASE: `${API_BASE_URL}/api/solutions`,
         BUY_CART: `${API_BASE_URL}/api/solutions/buy-cart`,
-        FULL: (id: string) => `${API_BASE_URL}/api/solutions/${id}`,
+        FULL: (id: string) => `${API_BASE_URL}/api/solutions/${id}/full`,
     },
     PAYMENT: {
         CREATE_ORDER: `${API_BASE_URL}/api/payment/create-order`,

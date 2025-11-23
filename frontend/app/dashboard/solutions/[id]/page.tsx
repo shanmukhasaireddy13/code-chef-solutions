@@ -33,7 +33,6 @@ const getSolution = cache(async (id: string) => {
     }
 
     const data = await response.json();
-    console.log('Fetched solution data:', data ? 'Found' : 'Empty');
     return data;
   } catch (error: any) {
     // Check if it's a connection error (fetch failed)
