@@ -39,8 +39,8 @@ const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 console.log("production", isProduction);
 const allowedOrigins = isProduction
-    ? ['https://wk656j95-3000.inc1.devtunnels.ms'] // Replace with actual domain
-    : ['http://localhost:3000', 'https://wk656j95-3000.inc1.devtunnels.ms']; // Allow both localhost and dev tunnel
+    ? ['https://wk656j95-3000.inc1.devtunnels.ms','https://code-chef-solutions.vercel.app'] // Replace with actual domain
+    : ['http://localhost:3000', 'https://wk656j95-3000.inc1.devtunnels.ms','https://code-chef-solutions.vercel.app']; // Allow both localhost and dev tunnel
 
 app.use(cors({
     origin: function (origin, callback) {

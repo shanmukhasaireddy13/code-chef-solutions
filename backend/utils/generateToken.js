@@ -7,13 +7,13 @@ const generateToken = (req, res, userId, role) => {
 
     // Determine if we should use secure cookies
     // Use secure cookies if in production OR if the request is over HTTPS
-    const isSecure = process.env.NODE_ENV === 'production' || 
-                     (req && (req.secure || req.headers['x-forwarded-proto'] === 'https' || req.protocol === 'https'));
-    
+    const isSecure = process.env.NODE_ENV === 'production' ||
+        (req && (req.secure || req.headers['x-forwarded-proto'] === 'https' || req.protocol === 'https'));
+
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: isSecure, // Use secure cookies for HTTPS
-        sameSite: 'lax', // Prevent CSRF
+        secure: true, // Always secure for cross-site (SameSite=None requires Secure)
+        sameSite: 'None', // Allow cross-site cookies
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         path: '/', // Make cookie available for all paths
     });
