@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 
 import { ToasterClient } from "./ToasterClient";
 
+import { Analytics } from '@vercel/analytics/next';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +33,7 @@ export default function RootLayout({
       >
         {children}
         <ToasterClient />
+        <Analytics />
       </body>
     </html>
   );

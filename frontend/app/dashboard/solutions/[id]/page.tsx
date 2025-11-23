@@ -22,7 +22,7 @@ const getSolution = cache(async (id: string) => {
       headers: {
         'Cookie': `jwt=${jwtCookie.value}`
       },
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!response.ok) {
@@ -32,7 +32,9 @@ const getSolution = cache(async (id: string) => {
       return null;
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('Fetched solution data:', data ? 'Found' : 'Empty');
+    return data;
   } catch (error: any) {
     // Check if it's a connection error (fetch failed)
     if (error.cause?.code === 'ECONNREFUSED' || error.message?.includes('fetch failed')) {
