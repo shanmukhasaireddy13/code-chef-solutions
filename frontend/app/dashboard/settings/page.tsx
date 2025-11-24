@@ -100,6 +100,7 @@ export default async function SettingsPage() {
         initialEmail={user.email}
         initialRole={user.role}
         initialTransactions={transactions}
-        profileUrl={API_ROUTES.USER.PROFILE}
     />;
 }
+
+
