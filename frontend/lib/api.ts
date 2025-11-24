@@ -1,7 +1,9 @@
+// In production, use relative URLs (proxied by Next.js rewrites)
+// In development, use the backend URL directly
 export const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.API_URL ||
-    'http://localhost:5000';
+    typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+        ? '' // Use relative URLs in production (same-origin via Next.js proxy)
+        : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export const runtime = "nodejs";
 
