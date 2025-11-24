@@ -5,17 +5,14 @@ const generateToken = (req, res, userId, role) => {
         expiresIn: '30d',
     });
 
-    // Determine if we should use secure cookies
-    // Use secure cookies if in production OR if the request is over HTTPS
-    const isSecure = process.env.NODE_ENV === 'production' ||
-        (req && (req.secure || req.headers['x-forwarded-proto'] === 'https' || req.protocol === 'https'));
+    const isProduction = process.env.NODE_ENV === "production";
 
-    res.cookie('jwt', token, {
+    res.cookie("jwt", token, {
         httpOnly: true,
-        secure: true, // Always secure for cross-site (SameSite=None requires Secure)
-        sameSite: 'None', // Allow cross-site cookies
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        path: '/', // Make cookie available for all paths
+        secure: isProduction,                 // Cookie only secure on HTTPS
+        sameSite: isProduction ? "None" : "Lax",  // Needed for cross-site on Vercel
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/"
     });
 };
 

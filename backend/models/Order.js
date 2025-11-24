@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const OrderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -9,10 +10,18 @@ const OrderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    credits: {
+        type: Number,
+        required: true
+    },
     utr: {
         type: String,
-        required: true,
-        unique: true
+        required: true
+    },
+    utrHash: {
+        type: String,
+        unique: true,
+        sparse: true
     },
     status: {
         type: String,
@@ -20,4 +29,5 @@ const OrderSchema = new mongoose.Schema({
         default: 'pending'
     }
 }, { timestamps: true });
+
 module.exports = mongoose.model('Order', OrderSchema);

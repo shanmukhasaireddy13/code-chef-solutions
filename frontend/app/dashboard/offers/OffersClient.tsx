@@ -5,6 +5,8 @@ import { Tag, Plus, Power, Calendar, Gift, Users, Sparkles, Lock, CheckCircle, W
 import { toast } from 'sonner';
 
 
+import { safeFetch } from '@/lib/api';
+
 interface Offer {
     _id: string;
     code: string;
@@ -72,13 +74,8 @@ export default function OffersClient({ offersUrl }: OffersClientProps) {
 
     const fetchOffers = async () => {
         try {
-            const response = await fetch(offersUrl, {
-                credentials: 'include'
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setOffers(data);
-            }
+            const data = await safeFetch(offersUrl);
+            setOffers(data);
         } catch (error) {
             console.error("Error fetching offers:", error);
             toast.error("Failed to load offers");
@@ -134,36 +131,30 @@ export default function OffersClient({ offersUrl }: OffersClientProps) {
                 payload.autoApply = true;
             }
 
-            const response = await fetch(offersUrl, {
+            await safeFetch(offersUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify(payload),
             });
 
-            if (response.ok) {
-                toast.success("Offer created successfully!");
-                setNewOffer({
-                    code: '',
-                    title: '',
-                    description: '',
-                    offerType: 'DISCOUNT',
-                    discountType: 'PERCENTAGE',
-                    discountValue: 0,
-                    discountPercent: 10,
-                    type: 'Coupon',
-                    validUntil: '',
-                    usageLimit: 1,
-                    autoApply: false,
-                    requiresCode: true,
-                    conditions: { minPurchaseAmount: 0, minReferrals: 0 },
-                    bogoRules: { buyCount: 2, minTotalValue: 0, getFreeCount: 1, maxFreePrice: 0 }
-                });
-                fetchOffers();
-            } else {
-                const data = await response.json();
-                toast.error(data.message || "Failed to create offer");
-            }
+            toast.success("Offer created successfully!");
+            setNewOffer({
+                code: '',
+                title: '',
+                description: '',
+                offerType: 'DISCOUNT',
+                discountType: 'PERCENTAGE',
+                discountValue: 0,
+                discountPercent: 10,
+                type: 'Coupon',
+                validUntil: '',
+                usageLimit: 1,
+                autoApply: false,
+                requiresCode: true,
+                conditions: { minPurchaseAmount: 0, minReferrals: 0 },
+                bogoRules: { buyCount: 2, minTotalValue: 0, getFreeCount: 1, maxFreePrice: 0 }
+            });
+            fetchOffers();
         } catch (error) {
             console.error("Error creating offer:", error);
             toast.error("Error creating offer");
@@ -174,15 +165,12 @@ export default function OffersClient({ offersUrl }: OffersClientProps) {
 
     const toggleStatus = async (id: string) => {
         try {
-            const response = await fetch(`${offersUrl}/${id}/toggle`, {
-                method: 'PUT',
-                credentials: 'include'
+            await safeFetch(`${offersUrl}/${id}/toggle`, {
+                method: 'PUT'
             });
 
-            if (response.ok) {
-                toast.success("Offer status updated");
-                fetchOffers();
-            }
+            toast.success("Offer status updated");
+            fetchOffers();
         } catch (error) {
             console.error("Error toggling status:", error);
             toast.error("Failed to update status");
@@ -193,17 +181,12 @@ export default function OffersClient({ offersUrl }: OffersClientProps) {
         if (!confirm('Are you sure you want to delete this offer? This action cannot be undone.')) return;
 
         try {
-            const response = await fetch(`${offersUrl}/${id}`, {
-                method: 'DELETE',
-                credentials: 'include'
+            await safeFetch(`${offersUrl}/${id}`, {
+                method: 'DELETE'
             });
 
-            if (response.ok) {
-                toast.success("Offer deleted successfully");
-                fetchOffers();
-            } else {
-                toast.error("Failed to delete offer");
-            }
+            toast.success("Offer deleted successfully");
+            fetchOffers();
         } catch (error) {
             console.error("Error deleting offer:", error);
             toast.error("Failed to delete offer");

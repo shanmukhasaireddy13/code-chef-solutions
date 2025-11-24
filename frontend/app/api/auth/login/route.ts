@@ -15,6 +15,7 @@ export async function POST(req: Request) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
+            credentials: "include",
         });
 
         const text = await res.text();
@@ -35,9 +36,13 @@ export async function POST(req: Request) {
         const response = NextResponse.json(data, { status: res.status });
 
         if (data.token) {
+            const isProduction = process.env.NODE_ENV === "production";
             response.cookies.set("jwt", data.token, {
                 httpOnly: true,
                 path: "/",
+                sameSite: isProduction ? "none" : "lax",
+                secure: isProduction,
+                maxAge: 30 * 24 * 60 * 60, // 30 days
             });
         }
 

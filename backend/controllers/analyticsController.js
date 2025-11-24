@@ -17,6 +17,13 @@ exports.getDashboardStats = async (req, res) => {
         const activeContests = await Contest.countDocuments({ status: 'Live' });
         const totalSolutions = await Solution.countDocuments();
 
+        // Calculate total revenue from approved orders
+        const revenueResult = await require('../models/Order').aggregate([
+            { $match: { status: 'approved' } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
+
         // Get recent users (last 5)
         const recentUsers = await User.find({ role: 'user' })
             .sort({ createdAt: -1 })
@@ -28,6 +35,7 @@ exports.getDashboardStats = async (req, res) => {
             totalContests,
             activeContests,
             totalSolutions,
+            totalRevenue,
             recentUsers
         });
     } catch (error) {

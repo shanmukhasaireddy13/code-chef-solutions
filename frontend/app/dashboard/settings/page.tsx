@@ -73,7 +73,7 @@ async function getUserData() {
         const transactionsList = transactionsResult || [];
 
         return {
-            user: { name: userData.name || '', email: userData.email || '' },
+            user: { name: userData.name || '', email: userData.email || '', role: userData.role || 'user' },
             transactions: transactionsList
         };
     } catch (error: any) {
@@ -98,6 +98,7 @@ export default async function SettingsPage() {
     return <SettingsClient
         initialName={user.name}
         initialEmail={user.email}
+        initialRole={user.role}
         initialTransactions={transactions}
         profileUrl={API_ROUTES.USER.PROFILE}
     />;

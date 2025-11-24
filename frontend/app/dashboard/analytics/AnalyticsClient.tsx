@@ -4,11 +4,14 @@ import { useState, useEffect } from 'react';
 import { Users, Trophy, FileCode, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { safeFetch } from '@/lib/api';
+
 interface AnalyticsData {
     totalUsers: number;
     totalContests: number;
     activeContests: number;
     totalSolutions: number;
+    totalRevenue: number;
     recentUsers: {
         _id: string;
         username: string;
@@ -29,15 +32,8 @@ export default function AnalyticsClient({ analyticsUrl }: AnalyticsClientProps) 
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await fetch(analyticsUrl, {
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    const analyticsData = await response.json();
-                    setData(analyticsData);
-                } else {
-                    toast.error("Failed to fetch analytics");
-                }
+                const analyticsData = await safeFetch(analyticsUrl);
+                setData(analyticsData);
             } catch (error) {
                 console.error("Error fetching analytics:", error);
                 toast.error("Error loading analytics");
@@ -88,8 +84,8 @@ export default function AnalyticsClient({ analyticsUrl }: AnalyticsClientProps) 
                     color="purple"
                 />
                 <StatCard
-                    title="Revenue (Est.)"
-                    value={`$${(data.totalUsers * 10).toLocaleString()}`} // Dummy calc for now
+                    title="Total Revenue"
+                    value={`₹${(data.totalRevenue || 0).toLocaleString()}`}
                     icon={Trophy}
                     color="orange"
                 />
@@ -111,16 +107,24 @@ export default function AnalyticsClient({ analyticsUrl }: AnalyticsClientProps) 
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-200">
-                            {data.recentUsers.map((user) => (
-                                <tr key={user._id} className="hover:bg-zinc-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">{user.username}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{user.email}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
-                                        {new Date(user.createdAt).toLocaleDateString()}
+                            {data.recentUsers?.length > 0 ? (
+                                data.recentUsers.map((user) => (
+                                    <tr key={user._id} className="hover:bg-zinc-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">{user.username}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{user.email}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                                            {new Date(user.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{user.credits}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">
+                                        No recent users found.
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{user.credits}</td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

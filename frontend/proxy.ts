@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
-export default async function proxy(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
     const url = req.nextUrl;
     const pathname = url.pathname;
 
-    // Skip middleware for API routes and Next.js internals (but NOT RSC requests - they need auth checks)
+    // Allow NEXT API routes to pass but NOT backend API
     if (
+        pathname.startsWith('/api/auth') ||
         pathname.startsWith('/api') ||
         pathname.startsWith('/_next') ||
         pathname.startsWith('/_vercel') ||
@@ -39,7 +40,6 @@ export default async function proxy(req: NextRequest) {
 
     // Not logged in -> redirect to home
     if (isProtected && !token) {
-        console.log(`Middleware - Redirecting ${pathname} to / because no token found`);
         return NextResponse.redirect(new URL('/', req.url));
     }
 
@@ -55,7 +55,8 @@ export default async function proxy(req: NextRequest) {
             const { payload } = await jwtVerify(token, secret);
             const role = payload.role as string;
             if (role !== 'admin') {
-                return NextResponse.redirect(new URL('/dashboard', req.url));
+                // Rewrite to 404 page to hide admin routes
+                return NextResponse.rewrite(new URL('/404', req.url));
             }
         } catch (e) {
             // If token is invalid, clear it and redirect to home

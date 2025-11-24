@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         {children}
         <ToasterClient />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <Analytics />
       </body>
     </html>
   );

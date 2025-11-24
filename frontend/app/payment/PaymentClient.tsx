@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Clock, QrCode, ShieldCheck, ArrowRight, CreditCard, Tag } from 'lucide-react';
+import { Check, Clock, QrCode, ShieldCheck, ArrowRight, CreditCard, Tag, AlertCircle, Frown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import OrderConfirmButton from '../components/OrderConfirmButton';
 import { toast } from 'sonner';
@@ -272,6 +272,21 @@ export default function PaymentClient({ userMeUrl, validateOfferUrl, createOrder
                                             </>
                                         )}
                                     </button>
+
+                                    <motion.button
+                                        onClick={() => router.push('/dashboard')}
+                                        className="w-full py-3 rounded-xl font-medium text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 group relative overflow-hidden"
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <span className="group-hover:translate-y-[-150%] transition-transform duration-300 absolute inset-0 flex items-center justify-center">
+                                            Cancel Transaction
+                                        </span>
+                                        <span className="translate-y-[150%] group-hover:translate-y-0 transition-transform duration-300 absolute inset-0 flex items-center justify-center gap-2 font-semibold">
+                                            <Frown className="w-4 h-4" /> Don't want to buy credits
+                                        </span>
+                                        <span className="opacity-0">Placeholder</span> {/* Keeps button height */}
+                                    </motion.button>
                                 </div>
                             </motion.div>
                         )}
@@ -323,7 +338,7 @@ export default function PaymentClient({ userMeUrl, validateOfferUrl, createOrder
                                     </div>
                                 </div>
 
-                                <div className={isProcessing ? 'pointer-events-none opacity-50' : ''}>
+                                <div className="space-y-3">
                                     <OrderConfirmButton
                                         onOrderComplete={handleConfirmPayment}
                                         buttonText="I Have Paid"
@@ -331,6 +346,13 @@ export default function PaymentClient({ userMeUrl, validateOfferUrl, createOrder
                                         className="w-full bg-zinc-900 hover:bg-zinc-800 text-white shadow-lg shadow-zinc-900/10"
                                         disabled={!utrNumber}
                                     />
+                                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex gap-2 items-start">
+                                        <AlertCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                                        <p className="text-xs text-blue-700 leading-relaxed">
+                                            Verification usually takes a few minutes but can take up to <strong>24 hours</strong>.
+                                            If credits are not added after 24 hours, please contact support.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <button

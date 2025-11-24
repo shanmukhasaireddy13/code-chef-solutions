@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Upload, Check, AlertCircle, Plus, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { safeFetch } from '@/lib/api';
+
 interface Contest {
     _id: string;
     name: string;
@@ -45,13 +47,10 @@ export default function UploadSolutionsClient({ contestsUrl, solutionsUrl }: Upl
     useEffect(() => {
         const fetchContests = async () => {
             try {
-                const response = await fetch(contestsUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    // Combine live and upcoming contests
-                    const allContests = [...(data.live || []), ...(data.upcoming || [])];
-                    setContests(allContests);
-                }
+                const data = await safeFetch(contestsUrl);
+                // Combine live and upcoming contests
+                const allContests = [...(data.live || []), ...(data.upcoming || [])];
+                setContests(allContests);
             } catch (error) {
                 console.error("Error fetching contests:", error);
                 toast.error("Failed to load contests");
@@ -93,27 +92,21 @@ export default function UploadSolutionsClient({ contestsUrl, solutionsUrl }: Upl
         setLoading(true);
 
         try {
-            const response = await fetch(solutionsUrl, {
+            await safeFetch(solutionsUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify(solutionData),
             });
 
-            if (response.ok) {
-                toast.success("Solution uploaded successfully!");
-                setSolutionData({
-                    contestId: '',
-                    problemId: '',
-                    name: '',
-                    difficulty: 'Easy',
-                    price: 15,
-                    content: ''
-                });
-            } else {
-                const data = await response.json();
-                toast.error(data.message || "Failed to upload solution");
-            }
+            toast.success("Solution uploaded successfully!");
+            setSolutionData({
+                contestId: '',
+                problemId: '',
+                name: '',
+                difficulty: 'Easy',
+                price: 15,
+                content: ''
+            });
         } catch (error) {
             console.error("Upload error", error);
             toast.error("Error uploading solution");
@@ -127,33 +120,24 @@ export default function UploadSolutionsClient({ contestsUrl, solutionsUrl }: Upl
         setLoading(true);
 
         try {
-            const response = await fetch(contestsUrl, {
+            await safeFetch(contestsUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify(contestData),
             });
 
-            if (response.ok) {
-                toast.success("Contest created successfully!");
-                setContestData({
-                    name: '',
-                    startTime: '',
-                    endTime: '',
-                    duration: '',
-                    status: 'Upcoming',
-                    type: 'Rated'
-                });
-                // Refresh contests list
-                const refreshResponse = await fetch(contestsUrl);
-                if (refreshResponse.ok) {
-                    const data = await refreshResponse.json();
-                    setContests([...(data.live || []), ...(data.upcoming || [])]);
-                }
-            } else {
-                const data = await response.json();
-                toast.error(data.message || "Failed to create contest");
-            }
+            toast.success("Contest created successfully!");
+            setContestData({
+                name: '',
+                startTime: '',
+                endTime: '',
+                duration: '',
+                status: 'Upcoming',
+                type: 'Rated'
+            });
+            // Refresh contests list
+            const data = await safeFetch(contestsUrl);
+            setContests([...(data.live || []), ...(data.upcoming || [])]);
         } catch (error) {
             console.error("Creation error", error);
             toast.error("Error creating contest");

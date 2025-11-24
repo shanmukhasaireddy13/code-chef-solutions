@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Order = require('../models/Order');
 const Offer = require('../models/Offer');
 const UserOfferUsage = require('../models/UserOfferUsage');
+const { encrypt, decrypt } = require('../utils/encryption');
+const crypto = require('crypto');
 
 // @desc    Create a new payment order
 // @route   POST /api/payment/create-order
@@ -11,7 +13,7 @@ exports.createOrder = async (req, res) => {
         const { amount, utr, couponCode } = req.body;
         const userId = req.user.id;
 
-        console.log('Create Order Request:', { amount, utr, couponCode, userId });
+        console.log('Create Order Request:', { amount, utr: '***', couponCode, userId });
 
         if (!amount || amount <= 0) {
             return res.status(400).json({ message: 'Invalid amount' });
@@ -21,9 +23,18 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ message: 'UTR is required' });
         }
 
-        // Check if UTR already exists
-        const existingOrder = await Order.findOne({ utr });
+        // Hash UTR for uniqueness check
+        const utrHash = crypto.createHash('sha256').update(utr).digest('hex');
+
+        // Check if UTR already exists (using hash)
+        const existingOrder = await Order.findOne({ utrHash });
         if (existingOrder) {
+            return res.status(400).json({ message: 'UTR number already used' });
+        }
+
+        // Also check legacy plain text UTRs (optional, but good for transition)
+        const legacyOrder = await Order.findOne({ utr });
+        if (legacyOrder) {
             return res.status(400).json({ message: 'UTR number already used' });
         }
 
@@ -111,11 +122,16 @@ exports.createOrder = async (req, res) => {
             }
         }
 
+        // Encrypt UTR
+        const encryptedUtr = encrypt(utr);
+
         // Create order
         const order = await Order.create({
             user: userId,
-            amount: finalAmount,
-            utr,
+            amount: finalAmount, // The amount the user actually pays
+            credits: Number(amount), // The original amount (credits) to be added
+            utr: encryptedUtr,
+            utrHash,
             status: 'pending'
         });
 
@@ -128,6 +144,7 @@ exports.createOrder = async (req, res) => {
             order: {
                 _id: order._id,
                 amount: order.amount,
+                credits: order.credits,
                 status: order.status,
                 appliedCoupon: appliedCoupon
             }
@@ -152,7 +169,14 @@ exports.getOrders = async (req, res) => {
             .populate('user', 'name email')
             .sort({ createdAt: -1 });
 
-        res.json(orders);
+        // Decrypt UTRs for display
+        const decryptedOrders = orders.map(order => {
+            const orderObj = order.toObject();
+            orderObj.utr = decrypt(order.utr);
+            return orderObj;
+        });
+
+        res.json(decryptedOrders);
     } catch (error) {
         console.error('Get Orders Error:', error);
         res.status(500).json({ message: 'Server Error' });
@@ -183,15 +207,20 @@ exports.verifyOrder = async (req, res) => {
             return res.status(400).json({ message: 'Order is already processed' });
         }
 
+        // Decrypt stored UTR to compare
+        const decryptedUtr = decrypt(order.utr);
+
         // Verify UTR matches
-        if (order.utr === adminUtr) {
+        if (decryptedUtr === adminUtr) {
             order.status = 'approved';
             await order.save();
 
             // Add credits to user
             const user = await User.findById(order.user);
             if (user) {
-                user.credits += order.amount;
+                // Use order.credits if available (for new orders), fallback to order.amount for old orders
+                const creditsToAdd = order.credits !== undefined ? order.credits : order.amount;
+                user.credits += creditsToAdd;
                 await user.save();
             }
 

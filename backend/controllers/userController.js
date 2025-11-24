@@ -42,15 +42,59 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// @desc    Update password
+// @route   PUT /api/user/password
+// @access  Private
+exports.updatePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+        const user = await User.findById(req.user.id);
+
+        // Check current password
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid current password' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 // @desc    Get user transactions
 // @route   GET /api/user/transactions
 // @access  Private
 exports.getTransactions = async (req, res) => {
-    // In a real app, fetch from a Transaction model
-    // For now, returning mock data from backend as requested
-    const transactions = [
-        { id: 1, type: 'credit', description: 'Added Credits', date: 'Nov 22, 2025', amount: '+100 Credits' },
-        { id: 2, type: 'debit', description: 'Purchased Solution', date: 'Nov 21, 2025', amount: '-15 Credits' }
-    ];
-    res.json(transactions);
+    try {
+        const Order = require('../models/Order');
+
+        // Fetch approved orders (Credits Added)
+        const orders = await Order.find({
+            user: req.user.id,
+            status: 'approved'
+        }).sort({ createdAt: -1 });
+
+        const transactions = orders.map(order => ({
+            id: order._id,
+            type: 'credit',
+            description: 'Added Credits',
+            date: new Date(order.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }),
+            amount: `+${order.credits || order.amount} Credits`
+        }));
+
+        res.json(transactions);
+    } catch (error) {
+        console.error('Get Transactions Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
 };

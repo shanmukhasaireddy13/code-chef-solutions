@@ -1,6 +1,25 @@
 export const API_BASE_URL =
-    process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.API_URL ||
+    'http://localhost:5000';
+
 export const runtime = "nodejs";
+
+export async function safeFetch(url: string, options: any = {}) {
+    const res = await fetch(url, {
+        ...options,
+        credentials: "include",
+    });
+
+    const text = await res.text();
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        console.log("Raw response:", text);
+        throw new Error("Invalid JSON from server");
+    }
+}
 
 export const API_ROUTES = {
     AUTH: {
@@ -13,6 +32,7 @@ export const API_ROUTES = {
         ME: `${API_BASE_URL}/api/user/me`,
         PROFILE: `${API_BASE_URL}/api/user/profile`,
         TRANSACTIONS: `${API_BASE_URL}/api/user/transactions`,
+        PASSWORD: `${API_BASE_URL}/api/user/password`,
     },
     REFERRAL: {
         STATS: `${API_BASE_URL}/api/referral/stats`,

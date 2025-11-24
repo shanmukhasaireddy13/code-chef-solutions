@@ -14,6 +14,7 @@ const { createOffer, getOffers, toggleOfferStatus, validateOffer, deleteOffer } 
 // User Routes
 router.get('/user/me', ensureAuth, getCurrentUser);
 router.put('/user/profile', ensureAuth, updateProfile);
+router.put('/user/password', ensureAuth, require('../controllers/userController').updatePassword);
 router.get('/user/transactions', ensureAuth, getTransactions);
 
 // Payment Routes
