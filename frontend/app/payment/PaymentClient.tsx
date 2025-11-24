@@ -6,14 +6,14 @@ import { Check, Clock, QrCode, ShieldCheck, ArrowRight, CreditCard, Tag, AlertCi
 import { useRouter } from 'next/navigation';
 import OrderConfirmButton from '../components/OrderConfirmButton';
 import { toast } from 'sonner';
+import { API_ROUTES } from '@/lib/api';
 
-interface PaymentClientProps {
-    userMeUrl: string;
-    validateOfferUrl: string;
-    createOrderUrl: string;
-}
+interface PaymentClientProps { }
 
-export default function PaymentClient({ userMeUrl, validateOfferUrl, createOrderUrl }: PaymentClientProps) {
+export default function PaymentClient({ }: PaymentClientProps) {
+    const userMeUrl = API_ROUTES.USER.ME;
+    const validateOfferUrl = API_ROUTES.OFFERS.VALIDATE;
+    const createOrderUrl = API_ROUTES.PAYMENT.CREATE_ORDER;
     const router = useRouter();
     const [step, setStep] = useState<'select' | 'confirm' | 'pay'>('select');
     const [amount, setAmount] = useState<string>('');
