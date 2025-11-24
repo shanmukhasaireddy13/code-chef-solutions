@@ -67,7 +67,7 @@ export default function SolutionViewClient({ solution }: SolutionViewClientProps
                 </div>
 
                 {/* Apple Window Style Code Card */}
-                <div className="bg-[#1e1e1e] rounded-xl shadow-2xl overflow-hidden border border-zinc-800/50">
+                <div id="solution-code-card" className="bg-[#1e1e1e] rounded-xl shadow-2xl overflow-hidden border border-zinc-800/50">
                     {/* Window Title Bar */}
                     <div className="bg-[#2d2d2d] px-4 py-3 flex items-center justify-between border-b border-zinc-700/50">
                         <div className="flex items-center gap-2">

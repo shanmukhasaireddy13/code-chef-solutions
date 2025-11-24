@@ -83,7 +83,7 @@ export default function HelpClient({ supportUrl }: HelpClientProps) {
                 </div>
 
                 {/* Window Content */}
-                <div className="p-8 bg-zinc-50/50 min-h-[600px]">
+                <div className="p-8 bg-zinc-50/50 min-h-[600px]" id="help-section">
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h1 className="text-2xl font-bold text-zinc-900">Help & Support</h1>

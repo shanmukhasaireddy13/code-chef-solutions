@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SidebarClient from './SidebarClient';
 import LogoutButton from './LogoutButton';
+import Tour from './Tour';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -10,14 +12,212 @@ interface DashboardLayoutProps {
         credits: number;
         name: string;
         role: string;
+        hasSeenTour?: boolean;
     };
 }
 
 export default function DashboardLayout({ children, userData }: DashboardLayoutProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [showTour, setShowTour] = useState(false);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    // Get current step from URL or default to 0
+    const currentStepIndex = parseInt(searchParams.get('tourStep') || '0', 10);
+
+    useEffect(() => {
+        const hasSeenTourLocal = localStorage.getItem('hasSeenTour');
+        const tourParam = searchParams.get('tour');
+
+        // Show tour if explicitly requested OR (user hasn't seen it in DB AND hasn't seen it locally)
+        if (tourParam === 'true' || (!userData.hasSeenTour && !hasSeenTourLocal)) {
+            // Small delay to allow initial render
+            setTimeout(() => setShowTour(true), 1000);
+        }
+    }, [searchParams, userData.hasSeenTour]);
+
+    const updateTourStatus = async () => {
+        try {
+            await fetch('/api/user/tour-status', { method: 'PUT' });
+        } catch (error) {
+            console.error('Failed to update tour status', error);
+        }
+    };
+
+    const handleTourComplete = () => {
+        setShowTour(false);
+        localStorage.setItem('hasSeenTour', 'true');
+        updateTourStatus();
+        // Remove query params
+        router.replace(pathname);
+    };
+
+    const handleTourSkip = () => {
+        setShowTour(false);
+        localStorage.setItem('hasSeenTour', 'true');
+        updateTourStatus();
+        router.replace(pathname);
+    };
+
+    const handleStepChange = (index: number) => {
+        const nextStep = tourSteps[index];
+        if (nextStep) {
+            // If path changes, navigate
+            if (nextStep.path && nextStep.path !== pathname) {
+                router.push(`${nextStep.path}?tour=true&tourStep=${index}`);
+            } else {
+                // Just update URL param
+                const params = new URLSearchParams(searchParams.toString());
+                params.set('tourStep', index.toString());
+                router.replace(`${pathname}?${params.toString()}`);
+            }
+        }
+    };
+
+    const tourSteps = [
+        {
+            targetId: 'nav-dashboard',
+            title: 'Welcome to Dashboard',
+            description: 'This is your command center. Access all features from this sidebar. It will stay open during the tour.',
+            path: '/dashboard',
+            position: 'right' as const,
+        },
+        {
+            targetId: 'btn-add-credits',
+            title: 'Add Credits',
+            description: 'Need more credits? Click here to top up your wallet instantly.',
+            path: '/dashboard',
+            position: 'right' as const,
+        },
+        {
+            targetId: 'tour-global-offers',
+            title: 'Exclusive Offers',
+            description: 'Check out the latest deals and discounts available for you right here!',
+            path: '/dashboard',
+            position: 'bottom' as const,
+        },
+        {
+            targetId: 'tour-contests-section',
+            title: 'Live & Upcoming Contests',
+            description: 'Here you can see all ongoing and future contests. Join live ones to earn rewards!',
+            path: '/dashboard',
+            position: 'left' as const,
+        },
+        {
+            targetId: 'tour-referral',
+            title: 'Earn Rewards',
+            description: 'Invite your friends to the platform and earn free credits for every signup!',
+            path: '/dashboard',
+            position: 'top' as const,
+        },
+        {
+            targetId: 'tour-contest-card',
+            title: 'Enter a Contest',
+            description: 'Click on this live contest card to enter the contest arena and see the problems.',
+            path: '/dashboard',
+            position: 'right' as const,
+            waitForClick: true,
+            navigatesOnClick: true,
+        },
+        {
+            targetId: 'tour-add-to-cart-btn',
+            title: 'Select Problem',
+            description: 'Click the cart icon to add this problem to your cart.',
+            // path: '/dashboard/contest', // Removed to prevent 404 on dynamic route
+            position: 'left' as const,
+            waitForClick: true,
+        },
+        {
+            targetId: 'tour-unlock-btn',
+            title: 'Unlock Solutions',
+            description: 'Click here to purchase the solutions in your cart. First one is free!',
+            // path: '/dashboard/contest',
+            position: 'left' as const,
+            waitForClick: true,
+        },
+        {
+            targetId: 'tour-view-solution-btn',
+            title: 'View Solution',
+            description: 'Success! Now click "View Solution" to see the code.',
+            // path: '/dashboard/contest',
+            position: 'left' as const,
+            waitForClick: true,
+            navigatesOnClick: true,
+        },
+        {
+            targetId: 'solutions-table',
+            title: 'Solutions Library',
+            description: 'This is where your solutions live. Select a contest or search for a specific problem.',
+            path: '/dashboard/solutions',
+            position: 'right' as const,
+        },
+        {
+            targetId: 'tour-first-solution',
+            title: 'Select a Solution',
+            description: 'Click on a solution to see its details and code.',
+            path: '/dashboard/solutions',
+            position: 'left' as const,
+            waitForClick: true,
+        },
+        {
+            targetId: 'solution-view-btn',
+            title: 'View Code',
+            description: 'Click the "Open Solution" button to see the full code, copy it, or download it.',
+            path: '/dashboard/solutions',
+            position: 'left' as const,
+            waitForClick: true,
+            navigatesOnClick: true,
+        },
+        {
+            targetId: 'solution-code-card',
+            title: 'Solution Code',
+            description: 'Here is the complete solution code! You can copy it using the button in the top right.',
+            // path: '/dashboard/solutions/[id]', // Dynamic path, handled by previous step navigation
+            position: 'top' as const,
+        },
+        {
+            targetId: 'nav-help',
+            title: 'Need Help?',
+            description: 'Got a problem? Don\'t worry! Click Next to visit our Support Center.',
+            path: '/dashboard/solutions',
+            position: 'right' as const,
+        },
+        {
+            targetId: 'help-section',
+            title: 'Support Center',
+            description: 'Submit a ticket here if you face any issues. We are here to help!',
+            path: '/dashboard/help',
+            position: 'left' as const,
+        },
+        {
+            targetId: 'nav-settings',
+            title: 'Settings',
+            description: 'Finally, let\'s check your settings. Click Next to proceed.',
+            path: '/dashboard/help',
+            position: 'right' as const,
+        },
+        {
+            targetId: 'settings-container',
+            title: 'Your Preferences',
+            description: 'Manage your profile, change your password, and view your billing history here.',
+            path: '/dashboard/settings',
+            position: 'left' as const,
+        },
+    ];
 
     return (
         <div className="min-h-screen bg-zinc-50">
+            {showTour && (
+                <Tour
+                    steps={tourSteps}
+                    currentStepIndex={currentStepIndex}
+                    onStepChange={handleStepChange}
+                    onComplete={handleTourComplete}
+                    onSkip={handleTourSkip}
+                />
+            )}
+
             <SidebarClient
                 initialCredits={userData.credits}
                 userName={userData.name}

@@ -98,3 +98,23 @@ exports.getTransactions = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+// @desc    Update tour status
+// @route   PUT /api/user/tour-status
+// @access  Private
+exports.updateTourStatus = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.hasSeenTour = true;
+        await user.save();
+
+        res.json({ message: 'Tour status updated' });
+    } catch (error) {
+        console.error('Update Tour Status Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { LayoutGrid, BookOpen, Settings, LogOut, ChevronLeft, ChevronRight, Wallet, Plus, BarChart3, MessageSquare, HelpCircle, Tag } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 interface SidebarClientProps {
     initialCredits: number;
@@ -29,9 +30,12 @@ export default function SidebarClient({ initialCredits, userName, role, isCollap
         };
     }, []);
 
-    // Auto-close sidebar after 5 seconds of inactivity (but NOT if modal is open)
+    const searchParams = useSearchParams();
+    const isTourActive = searchParams.get('tour') === 'true';
+
+    // Auto-close sidebar after 5 seconds of inactivity (but NOT if modal is open or tour is active)
     useEffect(() => {
-        if (!isCollapsed) {
+        if (!isCollapsed && !isTourActive) {
             autoCloseTimerRef.current = setTimeout(() => {
                 toggleSidebar();
             }, 5000);
@@ -42,11 +46,11 @@ export default function SidebarClient({ initialCredits, userName, role, isCollap
                 clearTimeout(autoCloseTimerRef.current);
             }
         };
-    }, [isCollapsed, toggleSidebar]);
+    }, [isCollapsed, toggleSidebar, isTourActive]);
 
-    // Reset timer on user interaction (but NOT if modal is open)
+    // Reset timer on user interaction (but NOT if modal is open or tour is active)
     const handleInteraction = () => {
-        if (!isCollapsed && autoCloseTimerRef.current) {
+        if (!isCollapsed && autoCloseTimerRef.current && !isTourActive) {
             clearTimeout(autoCloseTimerRef.current);
             autoCloseTimerRef.current = setTimeout(() => {
                 toggleSidebar();
@@ -165,6 +169,7 @@ export default function SidebarClient({ initialCredits, userName, role, isCollap
                                         <p className="text-2xl font-bold text-zinc-900">{credits}</p>
                                     </div>
                                     <button
+                                        id="btn-add-credits"
                                         onClick={handleAddCredits}
                                         className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
                                     >
@@ -192,21 +197,21 @@ export default function SidebarClient({ initialCredits, userName, role, isCollap
 
             {/* Navigation */}
             <nav className="flex-1 px-3 space-y-1">
-                <NavItem href="/dashboard" icon={LayoutGrid} label="Dashboard" isCollapsed={isCollapsed} />
+                <NavItem id="nav-dashboard" href="/dashboard" icon={LayoutGrid} label="Dashboard" isCollapsed={isCollapsed} />
                 {role === 'admin' ? (
                     <>
-                        <NavItem href="/dashboard/upload" icon={BookOpen} label="Upload Solutions" isCollapsed={isCollapsed} />
-                        <NavItem href="/dashboard/analytics" icon={BarChart3} label="Analytics" isCollapsed={isCollapsed} />
-                        <NavItem href="/dashboard/concerns" icon={MessageSquare} label="User Concerns" isCollapsed={isCollapsed} />
-                        <NavItem href="/dashboard/offers" icon={Tag} label="Offers & Coupons" isCollapsed={isCollapsed} />
+                        <NavItem id="nav-upload" href="/dashboard/upload" icon={BookOpen} label="Upload Solutions" isCollapsed={isCollapsed} />
+                        <NavItem id="nav-analytics" href="/dashboard/analytics" icon={BarChart3} label="Analytics" isCollapsed={isCollapsed} />
+                        <NavItem id="nav-concerns" href="/dashboard/concerns" icon={MessageSquare} label="User Concerns" isCollapsed={isCollapsed} />
+                        <NavItem id="nav-offers" href="/dashboard/offers" icon={Tag} label="Offers & Coupons" isCollapsed={isCollapsed} />
                     </>
                 ) : (
                     <>
-                        <NavItem href="/dashboard/solutions" icon={BookOpen} label="My Solutions" isCollapsed={isCollapsed} />
-                        <NavItem href="/dashboard/help" icon={HelpCircle} label="Help & Support" isCollapsed={isCollapsed} />
+                        <NavItem id="nav-solutions" href="/dashboard/solutions" icon={BookOpen} label="My Solutions" isCollapsed={isCollapsed} />
+                        <NavItem id="nav-help" href="/dashboard/help" icon={HelpCircle} label="Help & Support" isCollapsed={isCollapsed} />
                     </>
                 )}
-                <NavItem href="/dashboard/settings" icon={Settings} label="Settings" isCollapsed={isCollapsed} />
+                <NavItem id="nav-settings" href="/dashboard/settings" icon={Settings} label="Settings" isCollapsed={isCollapsed} />
             </nav>
 
             {/* Footer / User Info */}
@@ -235,10 +240,15 @@ export default function SidebarClient({ initialCredits, userName, role, isCollap
     );
 }
 
-function NavItem({ href, icon: Icon, label, isCollapsed }: { href: string, icon: any, label: string, isCollapsed: boolean }) {
+function NavItem({ id, href, icon: Icon, label, isCollapsed }: { id?: string, href: string, icon: any, label: string, isCollapsed: boolean }) {
+    const searchParams = useSearchParams();
+    const isTourActive = searchParams.get('tour') === 'true';
+    const finalHref = isTourActive ? `${href}?tour=true` : href;
+
     return (
         <Link
-            href={href}
+            id={id}
+            href={finalHref}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-black/5 transition-all group ${isCollapsed ? 'justify-center' : ''
                 }`}
             title={isCollapsed ? label : ''}

@@ -54,7 +54,11 @@ function AuthModalContent({ isOpen, onClose, googleAuthUrl }: AuthModalProps) {
             });
 
             // Force a full page reload to ensure cookies are available
-            window.location.href = '/dashboard';
+            if (isLogin) {
+                window.location.href = '/dashboard';
+            } else {
+                window.location.href = '/dashboard?tour=true';
+            }
         } catch (err: any) {
             if (err.code === 'ERR_NETWORK' || err.response?.status === 503) {
                 setError('Connection lost. Please check your internet connection.');

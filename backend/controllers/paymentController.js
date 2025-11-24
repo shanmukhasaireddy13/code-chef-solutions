@@ -222,12 +222,13 @@ exports.verifyOrder = async (req, res) => {
                 const creditsToAdd = order.credits !== undefined ? order.credits : order.amount;
                 user.credits += creditsToAdd;
                 await user.save();
+                console.log(`Credits updated for user ${user._id}. Added: ${creditsToAdd}, New Balance: ${user.credits}`);
             }
 
             res.json({
                 message: 'Order approved and credits added',
                 status: 'approved',
-                newBalance: user.credits
+                newBalance: user ? user.credits : 0
             });
         } else {
             res.status(400).json({ message: 'UTR does not match', status: 'pending' });

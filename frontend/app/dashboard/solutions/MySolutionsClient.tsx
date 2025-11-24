@@ -132,7 +132,7 @@ export default function MySolutionsClient({ initialSolutions, contestsUrl }: { i
         </div>
 
         {/* Main Content - File List */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white">
+        <div className="flex-1 flex flex-col min-w-0 bg-white" id="solutions-table">
           {/* Toolbar */}
           <div className="h-12 border-b border-zinc-200 flex items-center justify-between px-4 bg-white sticky top-0 z-10">
             <div className="flex items-center gap-2 text-sm text-zinc-500">
@@ -163,9 +163,10 @@ export default function MySolutionsClient({ initialSolutions, contestsUrl }: { i
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {filteredSolutions.map((solution) => (
+                {filteredSolutions.map((solution, index) => (
                   <motion.button
                     key={solution._id}
+                    id={index === 0 ? "tour-first-solution" : undefined}
                     layoutId={solution._id}
                     onClick={() => setSelectedSolutionId(solution._id)}
                     className={`group flex flex-col items-center p-4 rounded-xl transition-all ${selectedSolutionId === solution._id
@@ -237,8 +238,13 @@ export default function MySolutionsClient({ initialSolutions, contestsUrl }: { i
 
               <div className="p-4 border-t border-zinc-200 bg-white">
                 <Link
-                  href={`/dashboard/solutions/${selectedSolution._id}`}
+                  href={
+                    window.location.search.includes('tour=true')
+                      ? `/dashboard/solutions/${selectedSolution._id}?tour=true&tourStep=12`
+                      : `/dashboard/solutions/${selectedSolution._id}`
+                  }
                   className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20"
+                  id="solution-view-btn"
                 >
                   Open Solution <ExternalLink className="w-4 h-4" />
                 </Link>

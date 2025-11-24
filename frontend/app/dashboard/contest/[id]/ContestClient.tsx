@@ -61,6 +61,7 @@ export default function ContestClient({
 }: ContestClientProps) {
     const router = useRouter();
     const [problems, setProblems] = useState<Problem[]>([]);
+    const [localPurchasedIds, setLocalPurchasedIds] = useState<string[]>(purchasedSolutionIds); // Initialize with props
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [cart, setCart] = useState<Problem[]>([]);
@@ -262,13 +263,22 @@ export default function ContestClient({
             if (response.ok) {
                 toast.success("Purchase successful! 🎉");
                 setCredits(data.credits);
+
+                // Update local state to show "View Solution" button immediately
+                const newPurchasedIds = cart.map(p => p._id);
+                setLocalPurchasedIds(prev => [...prev, ...newPurchasedIds]);
+
                 setCart([]);
                 setAppliedOffer(null);
                 setCouponCode('');
+
                 // Trigger global credit update event
                 window.dispatchEvent(new CustomEvent('creditsUpdated', { detail: data.credits }));
-                // Redirect to My Solutions
-                router.push('/dashboard/solutions');
+
+                // If tour is active, DO NOT redirect.
+                if (!window.location.search.includes('tour=true')) {
+                    router.push('/dashboard/solutions');
+                }
             } else {
                 toast.error(data.message || "Purchase failed");
             }
@@ -321,8 +331,8 @@ export default function ContestClient({
                     </div>
 
                     <div className="grid gap-4">
-                        {filteredProblems.map((problem) => {
-                            const isPurchased = purchasedSolutionIds.includes(problem._id);
+                        {filteredProblems.map((problem, index) => {
+                            const isPurchased = localPurchasedIds.includes(problem._id);
                             const inCart = cart.some(p => p._id === problem._id);
                             const isFree = freeItemIds.includes(problem._id);
 
@@ -372,13 +382,15 @@ export default function ContestClient({
 
                                             {isPurchased ? (
                                                 <button
-                                                    onClick={() => router.push('/dashboard/solutions')}
+                                                    id={index === 0 ? "tour-view-solution-btn" : undefined}
+                                                    onClick={() => router.push(window.location.search.includes('tour=true') ? '/dashboard/solutions?tour=true&tourStep=9' : '/dashboard/solutions')}
                                                     className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                                                 >
                                                     View Solution <ChevronRight className="w-4 h-4" />
                                                 </button>
                                             ) : (
                                                 <button
+                                                    id={index === 0 ? "tour-add-to-cart-btn" : undefined}
                                                     onClick={() => toggleCart(problem)}
                                                     className={`p-2 rounded-lg transition-colors ${inCart ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}
                                                 >
@@ -499,6 +511,7 @@ export default function ContestClient({
                         </div>
 
                         <button
+                            id="tour-unlock-btn"
                             onClick={handleBuy}
                             disabled={cart.length === 0 || credits < finalPrice}
                             className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-zinc-900/20 active:scale-95 flex items-center justify-center gap-2"

@@ -36,6 +36,9 @@ seedAdmin();
 
 const app = express();
 
+// Trust proxy - required for rate limiting behind proxies/load balancers
+app.set('trust proxy', 1);
+
 const allowedOrigin = process.env.FRONTEND_URL;
 
 console.log("Allowed Frontend Origin:", allowedOrigin);

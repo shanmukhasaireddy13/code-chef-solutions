@@ -16,6 +16,7 @@ router.get('/user/me', ensureAuth, getCurrentUser);
 router.put('/user/profile', ensureAuth, updateProfile);
 router.put('/user/password', ensureAuth, require('../controllers/userController').updatePassword);
 router.get('/user/transactions', ensureAuth, getTransactions);
+router.put('/user/tour-status', ensureAuth, require('../controllers/userController').updateTourStatus);
 
 // Payment Routes
 router.post('/payment/create-order', ensureAuth, createOrder);
