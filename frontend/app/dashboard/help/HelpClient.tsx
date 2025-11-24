@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Send, MessageSquare, CheckCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_ROUTES } from '@/lib/api';
 interface Ticket {
     _id: string;
     subject: string;
@@ -12,11 +13,10 @@ interface Ticket {
     createdAt: string;
 }
 
-interface HelpClientProps {
-    supportUrl: string;
-}
+interface HelpClientProps { }
 
-export default function HelpClient({ supportUrl }: HelpClientProps) {
+export default function HelpClient({ }: HelpClientProps) {
+    const supportUrl = API_ROUTES.SUPPORT;
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [newTicket, setNewTicket] = useState({ subject: '', message: '' });
     const [loading, setLoading] = useState(false);

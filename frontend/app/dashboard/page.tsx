@@ -44,14 +44,11 @@ export default async function DashboardPage() {
         console.error("Failed to fetch user data", error);
         redirect('/');
     }
-
     return (
         <div className="max-w-7xl mx-auto">
             {role === 'admin' ? (
                 <AdminDashboardClient
                     initialOrders={initialOffers}
-                    ordersUrl={API_ROUTES.ADMIN.ORDERS}
-                    verifyOrderUrl={API_ROUTES.ADMIN.VERIFY_ORDER}
                 />
             ) : (
                 <DashboardClient

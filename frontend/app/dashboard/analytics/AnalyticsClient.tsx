@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Users, Trophy, FileCode, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { safeFetch } from '@/lib/api';
+import { safeFetch, API_ROUTES } from '@/lib/api';
 
 interface AnalyticsData {
     totalUsers: number;
@@ -21,11 +21,10 @@ interface AnalyticsData {
     }[];
 }
 
-interface AnalyticsClientProps {
-    analyticsUrl: string;
-}
+interface AnalyticsClientProps { }
 
-export default function AnalyticsClient({ analyticsUrl }: AnalyticsClientProps) {
+export default function AnalyticsClient({ }: AnalyticsClientProps) {
+    const analyticsUrl = API_ROUTES.ADMIN.ANALYTICS;
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
 

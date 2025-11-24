@@ -10,10 +10,9 @@ interface SettingsClientProps {
     initialEmail: string;
     initialRole: string;
     initialTransactions: any[];
-    profileUrl: string;
 }
 
-export default function SettingsClient({ initialName, initialEmail, initialRole, initialTransactions, profileUrl }: SettingsClientProps) {
+export default function SettingsClient({ initialName, initialEmail, initialRole, initialTransactions }: SettingsClientProps) {
     const [name, setName] = useState(initialName);
     const [email, setEmail] = useState(initialEmail);
     const [loading, setLoading] = useState(false);
@@ -33,7 +32,7 @@ export default function SettingsClient({ initialName, initialEmail, initialRole,
         setLoading(true);
         setMessage('');
         try {
-            await safeFetch(profileUrl, {
+            await safeFetch(API_ROUTES.USER.PROFILE, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email }),

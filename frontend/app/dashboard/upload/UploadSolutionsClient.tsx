@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Upload, Check, AlertCircle, Plus, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { safeFetch } from '@/lib/api';
+import { safeFetch, API_ROUTES } from '@/lib/api';
 
 interface Contest {
     _id: string;
@@ -12,12 +12,12 @@ interface Contest {
     status: string;
 }
 
-interface UploadSolutionsClientProps {
-    contestsUrl: string;
-    solutionsUrl: string;
-}
+interface UploadSolutionsClientProps { }
 
-export default function UploadSolutionsClient({ contestsUrl, solutionsUrl }: UploadSolutionsClientProps) {
+export default function UploadSolutionsClient({ }: UploadSolutionsClientProps) {
+    // Construct API URLs client-side
+    const contestsUrl = API_ROUTES.CONTESTS;
+    const solutionsUrl = API_ROUTES.SOLUTIONS.BASE;
     const [activeTab, setActiveTab] = useState<'solution' | 'contest'>('solution');
     const [contests, setContests] = useState<Contest[]>([]);
 

@@ -5,7 +5,7 @@ import { Tag, Plus, Power, Calendar, Gift, Users, Sparkles, Lock, CheckCircle, W
 import { toast } from 'sonner';
 
 
-import { safeFetch } from '@/lib/api';
+import { safeFetch, API_ROUTES } from '@/lib/api';
 
 interface Offer {
     _id: string;
@@ -36,11 +36,10 @@ interface Offer {
     requiresCode: boolean;
 }
 
-interface OffersClientProps {
-    offersUrl: string;
-}
+interface OffersClientProps {}
 
-export default function OffersClient({ offersUrl }: OffersClientProps) {
+export default function OffersClient({}: OffersClientProps) {
+    const offersUrl = API_ROUTES.ADMIN.OFFERS;
     const [offers, setOffers] = useState<Offer[]>([]);
     const [loading, setLoading] = useState(false);
     const [newOffer, setNewOffer] = useState<Partial<Offer>>({

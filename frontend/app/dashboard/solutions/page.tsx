@@ -46,5 +46,5 @@ export default async function MySolutionsPage() {
         return <ConnectionError healthUrl={API_ROUTES.HEALTH} />;
     }
 
-    return <MySolutionsClient initialSolutions={solutions} contestsUrl={API_ROUTES.CONTESTS} />;
+    return <MySolutionsClient initialSolutions={solutions} />;
 }

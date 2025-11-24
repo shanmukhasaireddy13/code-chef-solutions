@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FileCode, ExternalLink, Calendar, Search, Folder, LayoutGrid, List as ListIcon, ChevronRight, HardDrive, Clock } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_ROUTES } from '@/lib/api';
 
 interface Solution {
   _id: string;
@@ -14,7 +15,8 @@ interface Solution {
   language?: string;
 }
 
-export default function MySolutionsClient({ initialSolutions, contestsUrl }: { initialSolutions: Solution[], contestsUrl: string }) {
+export default function MySolutionsClient({ initialSolutions }: { initialSolutions: Solution[] }) {
+  const contestsUrl = API_ROUTES.CONTESTS;
   const [contestNames, setContestNames] = useState<{ [key: string]: string }>({});
   const [selectedContestId, setSelectedContestId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');

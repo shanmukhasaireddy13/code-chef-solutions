@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Check, RefreshCw, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { safeFetch } from '@/lib/api';
+import { safeFetch, API_ROUTES } from '@/lib/api';
 
 interface Order {
     _id: string;
@@ -21,11 +21,9 @@ interface Order {
 
 interface AdminDashboardClientProps {
     initialOrders?: Order[];
-    ordersUrl: string;
-    verifyOrderUrl: string;
 }
 
-export default function AdminDashboardClient({ initialOrders = [], ordersUrl, verifyOrderUrl }: AdminDashboardClientProps) {
+export default function AdminDashboardClient({ initialOrders = [] }: AdminDashboardClientProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders);
     const [loading, setLoading] = useState(false);
     const [adminUtrInputs, setAdminUtrInputs] = useState<{ [key: string]: string }>({});
@@ -34,7 +32,7 @@ export default function AdminDashboardClient({ initialOrders = [], ordersUrl, ve
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const data = await safeFetch(ordersUrl);
+            const data = await safeFetch(API_ROUTES.ADMIN.ORDERS);
             setOrders(data);
         } catch (error) {
             console.error("Failed to fetch orders", error);
@@ -53,7 +51,7 @@ export default function AdminDashboardClient({ initialOrders = [], ordersUrl, ve
 
         setProcessingId(orderId);
         try {
-            await safeFetch(verifyOrderUrl, {
+            await safeFetch(API_ROUTES.ADMIN.VERIFY_ORDER, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

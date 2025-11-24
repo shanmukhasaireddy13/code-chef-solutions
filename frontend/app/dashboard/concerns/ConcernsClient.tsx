@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { MessageSquare, CheckCircle, Clock, Reply } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_ROUTES } from '@/lib/api';
 
 interface Ticket {
     _id: string;
@@ -17,11 +18,10 @@ interface Ticket {
     createdAt: string;
 }
 
-interface ConcernsClientProps {
-    supportUrl: string;
-}
+interface ConcernsClientProps { }
 
-export default function ConcernsClient({ supportUrl }: ConcernsClientProps) {
+export default function ConcernsClient({ }: ConcernsClientProps) {
+    const supportUrl = API_ROUTES.ADMIN.SUPPORT;
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyMessage, setReplyMessage] = useState('');
