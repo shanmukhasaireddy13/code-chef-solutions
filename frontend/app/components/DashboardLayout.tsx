@@ -5,6 +5,7 @@ import SidebarClient from './SidebarClient';
 import LogoutButton from './LogoutButton';
 import Tour from './Tour';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { API_ROUTES } from '@/lib/api';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -39,7 +40,10 @@ export default function DashboardLayout({ children, userData }: DashboardLayoutP
 
     const updateTourStatus = async () => {
         try {
-            await fetch('/api/user/tour-status', { method: 'PUT' });
+            await fetch(API_ROUTES.USER.TOUR_STATUS, {
+                method: 'PUT',
+                credentials: 'include'
+            });
         } catch (error) {
             console.error('Failed to update tour status', error);
         }

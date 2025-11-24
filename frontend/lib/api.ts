@@ -33,6 +33,7 @@ export const API_ROUTES = {
         PROFILE: `${API_BASE_URL}/api/user/profile`,
         TRANSACTIONS: `${API_BASE_URL}/api/user/transactions`,
         PASSWORD: `${API_BASE_URL}/api/user/password`,
+        TOUR_STATUS: `${API_BASE_URL}/api/user/tour-status`,
     },
     REFERRAL: {
         STATS: `${API_BASE_URL}/api/referral/stats`,
