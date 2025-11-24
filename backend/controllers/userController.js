@@ -109,7 +109,15 @@ exports.updateTourStatus = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user.hasSeenTour = true;
+        const { isCompleted } = req.body;
+
+        // If isCompleted is provided, use it. Otherwise default to true (for completion)
+        if (isCompleted !== undefined) {
+            user.hasSeenTour = isCompleted;
+        } else {
+            user.hasSeenTour = true;
+        }
+
         await user.save();
 
         res.json({ message: 'Tour status updated' });

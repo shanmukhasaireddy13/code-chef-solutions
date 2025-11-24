@@ -29,7 +29,12 @@ const getUserData = cache(async () => {
         }
 
         const data = await response.json();
-        return { credits: data.credits || 0, name: data.name || 'User', role: data.role || 'user' };
+        return { 
+            credits: data.credits || 0, 
+            name: data.name || 'User', 
+            role: data.role || 'user',
+            hasSeenTour: data.hasSeenTour || false
+        };
     } catch (error: any) {
         // Check if it's a connection error (fetch failed)
         if (error.cause?.code === 'ECONNREFUSED' || error.message?.includes('fetch failed')) {

@@ -16,9 +16,6 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
         // Generate unique referral code for new user
         let newReferralCode = generateReferralCode();
         let codeExists = await User.findOne({ referralCode: newReferralCode });
@@ -43,7 +40,7 @@ exports.registerUser = async (req, res) => {
         user = await User.create({
             name,
             email,
-            password: hashedPassword,
+            password,
             referralCode: newReferralCode,
             referredBy: referrer ? referrer.referralCode : null,
             credits: initialCredits

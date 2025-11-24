@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Calendar, Clock, Trophy } from 'lucide-react';
 import ReferralCard from '../components/ReferralCard';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface Contest {
     _id: string;
@@ -31,6 +32,8 @@ interface DashboardClientProps {
 export default function DashboardClient({ initialContests, initialOffers, referralStats }: DashboardClientProps) {
     const [liveContests] = useState<Contest[]>(initialContests.live || []);
     const [upcomingContests] = useState<Contest[]>(initialContests.upcoming || []);
+    const searchParams = useSearchParams();
+    const isTourActive = searchParams.get('tour') === 'true';
 
     return (
         <div className="text-zinc-900 max-w-6xl mx-auto pt-12">
@@ -60,7 +63,7 @@ export default function DashboardClient({ initialContests, initialOffers, referr
                             <Link
                                 key={contest._id}
                                 id={index === 0 ? "tour-contest-card" : undefined}
-                                href={`/dashboard/contest/${contest._id}?tour=true&tourStep=6`} // Persist tour state
+                                href={isTourActive ? `/dashboard/contest/${contest._id}?tour=true&tourStep=6` : `/dashboard/contest/${contest._id}`}
                                 className="block p-4 rounded-xl border border-zinc-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group"
                             >
                                 <div className="flex justify-between items-start mb-2">

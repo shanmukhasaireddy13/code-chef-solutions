@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { User, Shield, CreditCard } from 'lucide-react';
+import { User, Shield, CreditCard, PlayCircle } from 'lucide-react';
 import { safeFetch, API_ROUTES } from '@/lib/api';
 
 
@@ -66,6 +66,20 @@ export default function SettingsClient({ initialName, initialEmail, initialRole,
             setPasswordMessage(error.message || 'Failed to update password');
         } finally {
             setPasswordLoading(false);
+        }
+    };
+
+    const handleRestartTour = async () => {
+        try {
+            await safeFetch(API_ROUTES.USER.TOUR_STATUS, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isCompleted: false, currentStep: 0 })
+            });
+            // Redirect to dashboard to restart tour
+            window.location.href = '/dashboard';
+        } catch (error) {
+            setMessage('Failed to restart tour');
         }
     };
 
@@ -221,6 +235,29 @@ export default function SettingsClient({ initialName, initialEmail, initialRole,
                                                         {passwordMessage}
                                                     </p>
                                                 )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Preferences Section */}
+                                    <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-zinc-100">
+                                            <PlayCircle className="w-4 h-4 text-zinc-400" />
+                                            <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">Preferences</h2>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-zinc-900">Product Tour</h3>
+                                                    <p className="text-xs text-zinc-500">Restart the guided tour to learn about features.</p>
+                                                </div>
+                                                <button
+                                                    onClick={handleRestartTour}
+                                                    className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                                >
+                                                    Restart Tour
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

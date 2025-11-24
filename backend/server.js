@@ -51,7 +51,7 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
         // Check if origin is in allowed list OR is a Vercel preview deployment
         if (allowedOrigins.indexOf(origin) !== -1 || (origin && origin.includes('vercel.app'))) {
             callback(null, true);

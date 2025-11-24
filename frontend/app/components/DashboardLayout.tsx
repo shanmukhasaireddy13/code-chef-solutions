@@ -6,6 +6,7 @@ import LogoutButton from './LogoutButton';
 import Tour from './Tour';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { API_ROUTES } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -14,6 +15,10 @@ interface DashboardLayoutProps {
         name: string;
         role: string;
         hasSeenTour?: boolean;
+        tour?: {
+            isCompleted: boolean;
+            currentStep: number;
+        };
     };
 }
 
@@ -25,46 +30,71 @@ export default function DashboardLayout({ children, userData }: DashboardLayoutP
     const pathname = usePathname();
 
     // Get current step from URL or default to 0
-    const currentStepIndex = parseInt(searchParams.get('tourStep') || '0', 10);
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
     useEffect(() => {
-        const hasSeenTourLocal = localStorage.getItem('hasSeenTour');
-        const tourParam = searchParams.get('tour');
+        const initializeTour = async () => {
+            // Never show tour for admin users
+            if (userData.role === 'admin') {
+                return;
+            }
 
-        // Show tour if explicitly requested OR (user hasn't seen it in DB AND hasn't seen it locally)
-        if (tourParam === 'true' || (!userData.hasSeenTour && !hasSeenTourLocal)) {
-            // Small delay to allow initial render
-            setTimeout(() => setShowTour(true), 1000);
-        }
-    }, [searchParams, userData.hasSeenTour]);
+            // If tour is explicitly requested via URL, show it
+            const tourParam = searchParams.get('tour');
+            const stepParam = searchParams.get('tourStep');
 
-    const updateTourStatus = async () => {
+            if (tourParam === 'true') {
+                if (stepParam) setCurrentStepIndex(parseInt(stepParam, 10));
+                setShowTour(true);
+                return;
+            }
+
+            // Check if user has seen the tour
+            if (!userData.hasSeenTour) {
+                setCurrentStepIndex(0);
+                // Small delay to allow initial render
+                setTimeout(() => setShowTour(true), 1000);
+            }
+        };
+
+        initializeTour();
+    }, [searchParams, userData]);
+
+    const updateTourStatus = async (isCompleted?: boolean, step?: number) => {
         try {
             await fetch(API_ROUTES.USER.TOUR_STATUS, {
                 method: 'PUT',
-                credentials: 'include'
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ isCompleted, currentStep: step })
             });
         } catch (error) {
             console.error('Failed to update tour status', error);
         }
     };
 
-    const handleTourComplete = () => {
+    const handleTourComplete = async () => {
         setShowTour(false);
-        localStorage.setItem('hasSeenTour', 'true');
-        updateTourStatus();
-        // Remove query params
-        router.replace(pathname);
+        await updateTourStatus(true, tourSteps.length);
+        // Navigate to dashboard and reload
+        window.location.href = '/dashboard';
     };
 
-    const handleTourSkip = () => {
+    const handleTourSkip = async () => {
         setShowTour(false);
-        localStorage.setItem('hasSeenTour', 'true');
-        updateTourStatus();
-        router.replace(pathname);
+        // Mark as completed when skipped
+        await updateTourStatus(true, currentStepIndex);
+        toast.info("You can revisit the tour from the settings if you don't know how things work.");
+        // Navigate to dashboard and reload after a short delay so user can see the toast
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 2000);
     };
 
     const handleStepChange = (index: number) => {
+        setCurrentStepIndex(index);
+        updateTourStatus(false, index); // Save progress
+
         const nextStep = tourSteps[index];
         if (nextStep) {
             // If path changes, navigate
@@ -73,6 +103,7 @@ export default function DashboardLayout({ children, userData }: DashboardLayoutP
             } else {
                 // Just update URL param
                 const params = new URLSearchParams(searchParams.toString());
+                params.set('tour', 'true'); // Ensure tour param is present
                 params.set('tourStep', index.toString());
                 router.replace(`${pathname}?${params.toString()}`);
             }
