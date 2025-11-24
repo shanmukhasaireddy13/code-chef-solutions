@@ -61,7 +61,7 @@ exports.registerUser = async (req, res) => {
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', {
             expiresIn: '30d',
         });
-        
+
         generateToken(req, res, user._id, user.role);
 
         res.status(201).json({
@@ -94,7 +94,7 @@ exports.loginUser = async (req, res) => {
             const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', {
                 expiresIn: '30d',
             });
-            
+
             generateToken(req, res, user._id, user.role);
 
             res.json({
@@ -118,9 +118,14 @@ exports.loginUser = async (req, res) => {
 // @route   GET /auth/logout
 // @access  Private
 exports.logoutUser = (req, res) => {
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie('jwt', '', {
         httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax",
         expires: new Date(0),
+        path: "/"
     });
     res.status(200).json({ message: 'Logged out successfully' });
 };
