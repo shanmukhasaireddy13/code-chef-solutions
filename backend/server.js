@@ -39,7 +39,7 @@ const app = express();
 // Trust proxy - required for rate limiting behind proxies/load balancers
 app.set('trust proxy', 1);
 
-// Allow multiple origins for CORS (local development + production)
+// Allow multiple origins for CORS (local development + production + Vercel previews)
 const allowedOrigins = [
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'https://code-chef-solutions.vercel.app'
@@ -51,10 +51,12 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        
+        // Check if origin is in allowed list OR is a Vercel preview deployment
+        if (allowedOrigins.indexOf(origin) !== -1 || (origin && origin.includes('vercel.app'))) {
             callback(null, true);
         } else {
+            console.log('CORS blocked origin:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
