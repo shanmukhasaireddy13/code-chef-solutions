@@ -7,6 +7,14 @@ const generateToken = (req, res, userId, role) => {
 
     const isProduction = process.env.NODE_ENV === "production";
 
+    // Debug logging
+    console.log('🍪 Cookie Settings:', {
+        NODE_ENV: process.env.NODE_ENV,
+        isProduction,
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax"
+    });
+
     res.cookie("jwt", token, {
         httpOnly: true,
         secure: isProduction,                 // Cookie only secure on HTTPS
