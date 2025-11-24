@@ -5,6 +5,7 @@ import { Search, Filter, ShoppingCart, Tag, Gift, Sparkles, Check, X, Lock, Unlo
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { API_ROUTES } from '@/lib/api';
 
 interface Problem {
     _id: string;
@@ -44,22 +45,20 @@ interface ContestClientProps {
     contestId: string;
     initialCredits: number;
     purchasedSolutionIds: string[];
-    contestProblemsUrl: string;
-    activeOffersUrl: string;
-    validateOfferUrl: string;
-    buyCartUrl: string;
 }
 
 export default function ContestClient({
     contestId,
     initialCredits,
-    purchasedSolutionIds,
-    contestProblemsUrl,
-    activeOffersUrl,
-    validateOfferUrl,
-    buyCartUrl
+    purchasedSolutionIds
 }: ContestClientProps) {
     const router = useRouter();
+
+    // Construct API URLs client-side to use Next.js rewrites
+    const contestProblemsUrl = API_ROUTES.CONTEST_PROBLEMS(contestId);
+    const activeOffersUrl = API_ROUTES.OFFERS.ACTIVE;
+    const validateOfferUrl = API_ROUTES.OFFERS.VALIDATE;
+    const buyCartUrl = API_ROUTES.SOLUTIONS.BUY_CART;
     const [problems, setProblems] = useState<Problem[]>([]);
     const [localPurchasedIds, setLocalPurchasedIds] = useState<string[]>(purchasedSolutionIds); // Initialize with props
     const [loading, setLoading] = useState(true);

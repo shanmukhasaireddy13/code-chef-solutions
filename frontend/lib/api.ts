@@ -1,9 +1,19 @@
 // In production, use relative URLs (proxied by Next.js rewrites)
 // In development, use the backend URL directly
-export const API_BASE_URL =
-    typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-        ? '' // Use relative URLs in production (same-origin via Next.js proxy)
-        : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+function getApiBaseUrl() {
+    // Check if we're in the browser and not on localhost
+    if (typeof window !== 'undefined') {
+        const isProduction = !window.location.hostname.includes('localhost') &&
+            !window.location.hostname.includes('127.0.0.1');
+        if (isProduction) {
+            return ''; // Use relative URLs in production (same-origin via Next.js proxy)
+        }
+    }
+    // Development or server-side
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export const runtime = "nodejs";
 

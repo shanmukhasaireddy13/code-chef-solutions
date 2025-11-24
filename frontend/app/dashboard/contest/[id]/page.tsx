@@ -15,11 +15,14 @@ async function getUserData() {
         }
 
         const response = await fetch(API_ROUTES.USER.ME, {
+            method: "GET",
+            credentials: "include",
             headers: {
                 'Cookie': `jwt=${jwtCookie.value}`
             },
-            next: { revalidate: 60 }
+            cache: "no-store",
         });
+
 
         if (!response.ok) {
             return null;
@@ -50,10 +53,6 @@ export default async function ContestPage({ params }: { params: Promise<{ id: st
             contestId={id}
             initialCredits={data?.credits || 0}
             purchasedSolutionIds={data?.purchasedSolutions || []}
-            contestProblemsUrl={API_ROUTES.CONTEST_PROBLEMS(id)}
-            activeOffersUrl={API_ROUTES.OFFERS.ACTIVE}
-            validateOfferUrl={API_ROUTES.OFFERS.VALIDATE}
-            buyCartUrl={API_ROUTES.SOLUTIONS.BUY_CART}
         />
     );
 }
