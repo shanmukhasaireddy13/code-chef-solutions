@@ -9,19 +9,15 @@ connectDB();
 
 // Seed admin
 const User = require('./models/User');
-const bcrypt = require('bcryptjs');
 
 const seedAdmin = async () => {
     try {
         const adminExists = await User.findOne({ email: 'admin@sol.com' });
         if (!adminExists) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash('admin123', salt);
-
             await User.create({
                 name: 'Admin',
                 email: 'admin@sol.com',
-                password: hashedPassword,
+                password: 'admin123',
                 role: 'admin',
                 credits: 999999
             });
@@ -42,7 +38,7 @@ app.set('trust proxy', 1);
 // Allow multiple origins for CORS (local development + production + Vercel previews)
 const allowedOrigins = [
     process.env.FRONTEND_URL || 'http://localhost:3000',
-    'https://code-chef-solutions.vercel.app'
+    'https://code-chef-solutions.vercel.app', 'https://4e28c73b5743.ngrok-free.app'
 ];
 
 console.log("Allowed Frontend Origins:", allowedOrigins);
