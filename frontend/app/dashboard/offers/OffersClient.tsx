@@ -36,9 +36,9 @@ interface Offer {
     requiresCode: boolean;
 }
 
-interface OffersClientProps {}
+interface OffersClientProps { }
 
-export default function OffersClient({}: OffersClientProps) {
+export default function OffersClient({ }: OffersClientProps) {
     const offersUrl = API_ROUTES.ADMIN.OFFERS;
     const [offers, setOffers] = useState<Offer[]>([]);
     const [loading, setLoading] = useState(false);

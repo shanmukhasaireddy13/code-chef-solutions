@@ -15,6 +15,67 @@ interface Solution {
   language?: string;
 }
 
+function SolutionDetails({ solution, onClose }: { solution: Solution, onClose?: () => void }) {
+  return (
+    <div className="flex flex-col h-full">
+      {onClose && (
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-zinc-100 rounded-full transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-zinc-500"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+        </button>
+      )}
+      <div className="p-8 flex flex-col items-center text-center border-b border-zinc-200/50 mt-8 md:mt-0">
+        <div className="w-24 h-24 bg-white rounded-2xl shadow-lg border border-zinc-100 flex items-center justify-center mb-4">
+          <FileCode className="w-12 h-12 text-blue-500" strokeWidth={1} />
+        </div>
+        <h3 className="text-lg font-bold text-zinc-900 mb-1">{solution.name}</h3>
+        <p className="text-xs text-zinc-500 uppercase tracking-wider">{solution.difficulty} • {solution.language || 'C++'}</p>
+      </div>
+
+      <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+        <div className="space-y-3">
+          <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Information</h4>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-500">Created</span>
+              <span className="text-zinc-900">{new Date(solution.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-500">Size</span>
+              <span className="text-zinc-900">2.4 KB</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-500">Kind</span>
+              <span className="text-zinc-900">C++ Source</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Tags</h4>
+          <div className="flex flex-wrap gap-2">
+            <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium border border-blue-100">Algorithm</span>
+            <span className="px-2 py-1 bg-zinc-100 text-zinc-600 rounded text-xs font-medium border border-zinc-200">Contest</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 border-t border-zinc-200 bg-white">
+        <Link
+          href={
+            window.location.search.includes('tour=true')
+              ? `/dashboard/solutions/${solution._id}?tour=true&tourStep=12`
+              : `/dashboard/solutions/${solution._id}`
+          }
+          className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20"
+          id="solution-view-btn"
+        >
+          Open Solution <ExternalLink className="w-4 h-4" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function MySolutionsClient({ initialSolutions }: { initialSolutions: Solution[] }) {
   const contestsUrl = API_ROUTES.CONTESTS;
   const [contestNames, setContestNames] = useState<{ [key: string]: string }>({});
@@ -90,7 +151,7 @@ export default function MySolutionsClient({ initialSolutions }: { initialSolutio
       <div className="bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden flex flex-1 flex-col md:flex-row">
 
         {/* Sidebar - Finder Style */}
-        <div className="w-full md:w-64 bg-zinc-50/50 border-r border-zinc-200 flex flex-col">
+        <div className="w-full md:w-64 bg-zinc-50/50 border-r border-zinc-200 flex flex-col max-h-48 md:max-h-none overflow-hidden md:overflow-visible border-b md:border-b-0">
           <div className="p-4 border-b border-zinc-200/50">
             <div className="flex gap-2 mb-4">
               <div className="w-3 h-3 rounded-full bg-red-400/80" />
@@ -194,64 +255,41 @@ export default function MySolutionsClient({ initialSolutions }: { initialSolutio
         </div>
 
         {/* Preview Pane (Right Side) */}
+        {/* Preview Pane (Right Side) - Desktop */}
         <AnimatePresence mode="wait">
           {selectedSolution && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 320, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="w-80 border-l border-zinc-200 bg-zinc-50/30 flex flex-col overflow-hidden hidden xl:flex"
+              className="w-80 border-l border-zinc-200 bg-zinc-50/30 flex-col overflow-hidden hidden xl:flex"
             >
-              <div className="p-8 flex flex-col items-center text-center border-b border-zinc-200/50">
-                <div className="w-24 h-24 bg-white rounded-2xl shadow-lg border border-zinc-100 flex items-center justify-center mb-4">
-                  <FileCode className="w-12 h-12 text-blue-500" strokeWidth={1} />
-                </div>
-                <h3 className="text-lg font-bold text-zinc-900 mb-1">{selectedSolution.name}</h3>
-                <p className="text-xs text-zinc-500 uppercase tracking-wider">{selectedSolution.difficulty} • {selectedSolution.language || 'C++'}</p>
-              </div>
-
-              <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Information</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-500">Created</span>
-                      <span className="text-zinc-900">{new Date(selectedSolution.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-500">Size</span>
-                      <span className="text-zinc-900">2.4 KB</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-500">Kind</span>
-                      <span className="text-zinc-900">C++ Source</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Tags</h4>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium border border-blue-100">Algorithm</span>
-                    <span className="px-2 py-1 bg-zinc-100 text-zinc-600 rounded text-xs font-medium border border-zinc-200">Contest</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 border-t border-zinc-200 bg-white">
-                <Link
-                  href={
-                    window.location.search.includes('tour=true')
-                      ? `/dashboard/solutions/${selectedSolution._id}?tour=true&tourStep=12`
-                      : `/dashboard/solutions/${selectedSolution._id}`
-                  }
-                  className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20"
-                  id="solution-view-btn"
-                >
-                  Open Solution <ExternalLink className="w-4 h-4" />
-                </Link>
-              </div>
+              <SolutionDetails solution={selectedSolution} />
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile/Tablet Preview Drawer */}
+        <AnimatePresence>
+          {selectedSolution && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedSolutionId(null)}
+                className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm xl:hidden"
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed inset-y-0 right-0 w-full sm:w-96 bg-white z-50 shadow-2xl xl:hidden"
+              >
+                <SolutionDetails solution={selectedSolution} onClose={() => setSelectedSolutionId(null)} />
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 

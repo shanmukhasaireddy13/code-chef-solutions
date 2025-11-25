@@ -24,6 +24,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, userData }: DashboardLayoutProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [showTour, setShowTour] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -259,10 +260,31 @@ export default function DashboardLayout({ children, userData }: DashboardLayoutP
                 role={userData.role}
                 isCollapsed={isCollapsed}
                 toggleSidebar={() => setIsCollapsed(!isCollapsed)}
+                isMobileOpen={isMobileOpen}
+                setMobileOpen={setIsMobileOpen}
             />
+
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-zinc-200 z-40 flex items-center px-4 justify-between">
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setIsMobileOpen(true)}
+                        className="p-2 -ml-2 hover:bg-zinc-100 rounded-lg transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-zinc-600"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
+                    </button>
+                    <span className="font-bold text-lg text-zinc-900">CodeChefSol</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-600">
+                        {userData.name.charAt(0).toUpperCase()}
+                    </div>
+                </div>
+            </div>
+
             <main
-                className={`transition-all duration-300 ease-in-out relative ${isCollapsed ? 'ml-20' : 'ml-72'
-                    } p-8`}
+                className={`transition-all duration-300 ease-in-out relative pt-20 md:pt-8 ${isCollapsed ? 'md:ml-20' : 'md:ml-72'
+                    } p-4 md:p-8`}
             >
                 <div className="absolute top-6 right-8 z-10">
                     <LogoutButton logoutUrl="/api/auth/logout" />

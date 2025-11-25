@@ -67,7 +67,7 @@ export default function HelpClient({ }: HelpClientProps) {
     };
 
     return (
-        <div className="max-w-5xl mx-auto pt-12 pb-12 px-4">
+        <div className="max-w-5xl mx-auto pt-4 md:pt-12 pb-12 px-4">
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-zinc-200/60">
                 {/* Window Header */}
                 <div className="bg-zinc-100/80 backdrop-blur-md border-b border-zinc-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
