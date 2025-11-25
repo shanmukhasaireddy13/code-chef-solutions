@@ -2,7 +2,7 @@ const router = require('express').Router();
 const ensureAuth = require('../middleware/auth');
 
 // Controllers
-const { getCurrentUser, updateProfile, getTransactions } = require('../controllers/userController');
+const { getCurrentUser, updateProfile, getTransactions, } = require('../controllers/userController');
 const { createOrder, getOrders, verifyOrder, generateQRCode } = require('../controllers/paymentController');
 const { buySolution, buyCart, getMySolutions, getSolutionPublic, getSolutionFull, createSolution } = require('../controllers/solutionController');
 const { getReferralStats } = require('../controllers/referralController');
@@ -17,6 +17,7 @@ router.put('/user/profile', ensureAuth, updateProfile);
 router.put('/user/password', ensureAuth, require('../controllers/userController').updatePassword);
 router.get('/user/transactions', ensureAuth, getTransactions);
 router.put('/user/tour-status', ensureAuth, require('../controllers/userController').updateTourStatus);
+
 
 // Payment Routes
 router.post('/payment/create-order', ensureAuth, createOrder);

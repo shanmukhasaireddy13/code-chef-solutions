@@ -70,6 +70,9 @@ exports.buySolution = async (req, res) => {
     }
 };
 
+
+
+
 // @desc    Get purchased solutions
 // @route   GET /api/solutions/my-solutions
 // @access  Private
@@ -83,15 +86,26 @@ exports.getMySolutions = async (req, res) => {
     }
 };
 
+const cache = require('../utils/cache');
+
 // @desc    Get solution details (public info)
 // @route   GET /api/solutions/:id
 // @access  Public
 exports.getSolutionPublic = async (req, res) => {
     try {
-        const solution = await Solution.findById(req.params.id).select('-content');
+        const cacheKey = `solution_public_${req.params.id}`;
+        const cachedData = cache.get(cacheKey);
+
+        if (cachedData) {
+            return res.json(cachedData);
+        }
+
+        const solution = await Solution.findById(req.params.id).select('-content').lean();
         if (!solution) {
             return res.status(404).json({ message: 'Solution not found' });
         }
+
+        cache.set(cacheKey, solution, 300); // Cache for 5 minutes
         res.json(solution);
     } catch (error) {
         console.error(error);

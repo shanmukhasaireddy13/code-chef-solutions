@@ -30,4 +30,9 @@ const ContestSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Index for filtering active contests
+ContestSchema.index({ status: 1 });
+// Index for sorting by start time
+ContestSchema.index({ startTime: 1 });
+
 module.exports = mongoose.model('Contest', ContestSchema);

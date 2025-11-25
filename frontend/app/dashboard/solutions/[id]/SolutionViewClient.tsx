@@ -44,7 +44,7 @@ export default function SolutionViewClient({ solution }: SolutionViewClientProps
                 <div className="flex items-start justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-zinc-900 mb-2">{solution.name}</h1>
-                        <div className="flex items-center gap-4 text-zinc-500 text-sm">
+                        <div className="flex flex-wrap items-center gap-4 text-zinc-500 text-sm">
                             <span className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
                                 Purchased {new Date(solution.createdAt).toLocaleDateString('en-US', {

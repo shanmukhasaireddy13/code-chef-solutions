@@ -29,4 +29,9 @@ const SolutionSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Compound index for faster lookups by contest and problem
+SolutionSchema.index({ contestId: 1, problemId: 1 });
+// Index for filtering by difficulty
+SolutionSchema.index({ difficulty: 1 });
+
 module.exports = mongoose.model('Solution', SolutionSchema);

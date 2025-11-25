@@ -29,18 +29,30 @@ exports.createContest = async (req, res) => {
     }
 };
 
+const cache = require('../utils/cache');
+
 // @desc    Get all contests (Live & Upcoming)
 // @route   GET /api/contests
 // @access  Public
 exports.getDashboardContests = async (req, res) => {
     try {
-        const liveContests = await Contest.find({ status: 'Live' });
-        const upcomingContests = await Contest.find({ status: 'Upcoming' });
+        const cacheKey = 'dashboard_contests';
+        const cachedData = cache.get(cacheKey);
 
-        res.json({
+        if (cachedData) {
+            return res.json(cachedData);
+        }
+
+        const liveContests = await Contest.find({ status: 'Live' }).lean();
+        const upcomingContests = await Contest.find({ status: 'Upcoming' }).lean();
+
+        const data = {
             live: liveContests,
             upcoming: upcomingContests
-        });
+        };
+
+        cache.set(cacheKey, data, 300); // Cache for 5 minutes
+        res.json(data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server Error' });
@@ -52,7 +64,16 @@ exports.getDashboardContests = async (req, res) => {
 // @access  Public
 exports.getContestProblems = async (req, res) => {
     try {
-        const problems = await Solution.find({ contestId: req.params.id }).select('-content');
+        const cacheKey = `contest_problems_${req.params.id}`;
+        const cachedData = cache.get(cacheKey);
+
+        if (cachedData) {
+            return res.json(cachedData);
+        }
+
+        const problems = await Solution.find({ contestId: req.params.id }).select('-content').lean();
+
+        cache.set(cacheKey, problems, 300); // Cache for 5 minutes
         res.json(problems);
     } catch (error) {
         console.error(error);

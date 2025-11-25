@@ -72,8 +72,12 @@ app.use(cookieParser());
 // Security Middleware
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
+const morgan = require('morgan');
 
 app.use(helmet());
+app.use(compression()); // Compress all responses
+app.use(morgan('combined')); // Log requests
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

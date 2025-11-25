@@ -30,4 +30,9 @@ const OrderSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Index for fetching user orders
+OrderSchema.index({ user: 1 });
+// Index for filtering by status (e.g., admin dashboard)
+OrderSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Order', OrderSchema);

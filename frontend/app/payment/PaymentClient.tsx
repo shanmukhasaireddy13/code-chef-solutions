@@ -372,7 +372,7 @@ export default function PaymentClient({ }: PaymentClientProps) {
                 </div>
 
                 {/* Right Side: Visuals / QR Code */}
-                <div className="hidden lg:flex flex-col items-center justify-center relative">
+                <div className="flex flex-col items-center justify-center relative mt-8 lg:mt-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-zinc-100 to-white rounded-3xl -z-10 border border-zinc-100" />
 
                     <AnimatePresence mode="wait">

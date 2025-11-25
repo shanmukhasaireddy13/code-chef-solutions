@@ -56,7 +56,7 @@ exports.registerUser = async (req, res) => {
         // Generate JWT and set cookie
         const jwt = require('jsonwebtoken');
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', {
-            expiresIn: '30d',
+            expiresIn: '2min',
         });
 
         generateToken(req, res, user._id, user.role);
@@ -110,6 +110,7 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
 
 // @desc    Logout user
 // @route   GET /auth/logout
