@@ -9,7 +9,8 @@ const nextConfig = {
 
   allowedDevOrigins: [
     "https://wk656j95-3000.inc1.devtunnels.ms",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    '4e28c73b5743.ngrok-free.app'
   ],
 
   // Proxy API requests to backend - this solves third-party cookie issues!
